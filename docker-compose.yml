@@ -1,0 +1,15 @@
+services:
+
+  app:
+    build: .
+    command: garmin_save_runs
+    volumes:
+      - .:/app:delegated
+      - /dev/bus/usb:/dev/bus/usb
+      - ./garmin_data:/data    
+    privileged: true
+    tty: true
+    stdin_open: true
+    environment:
+      GARMIN_SAVE_RUNS: "/data"
+
