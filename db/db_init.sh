@@ -1,0 +1,1 @@
+psql --username "$POSTGRES_USER" -f db_init.sql

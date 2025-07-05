@@ -12,4 +12,15 @@ services:
     stdin_open: true
     environment:
       GARMIN_SAVE_RUNS: "/data"
+      DATABASE_URL: "postgres://postgres:postgres@db:5432/hiker_db"
+    depends_on:
+      - db
 
+  db:
+    build: ./db
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5020:5432"

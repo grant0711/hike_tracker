@@ -1,0 +1,1 @@
+CREATE DATABASE hiker_db;
