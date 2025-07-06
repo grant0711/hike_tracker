@@ -15,8 +15,12 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         save_runs_process = subprocess.run('garmin_save_runs', shell=True, check=True, text=True, capture_output=True)
-        self.stdout.write(self.style.SUCCESS(save_runs_process.stdout))
+        if str(save_runs_process.stdout).startswith('garmin unit could not be opened'):
+            self.stdout.write(self.style.ERROR(save_runs_process.stdout))
+        else:
+            self.stdout.write(self.style.SUCCESS(save_runs_process.stdout))
         gmn_dir = os.path.join(settings.BASE_DIR, 'garmin_data')
+        existing_hike_names = set(Hike.objects.all().values_list('file_name', flat=True))
         for dirpath, _, filenames in os.walk(gmn_dir):
             for filename in filenames:
                 if filename.lower().endswith('.gmn'):
@@ -34,8 +38,8 @@ class Command(BaseCommand):
                     if point_element is None:
                         self.stdout.write(self.style.WARNING(f"Point element is null for {filename}"))
                         continue
-                    if Hike.objects.filter(file_name=filename).exists():
-                        self.stdout.write(self.style.WARNING(f'Hike with file_name {filename} already exists. Skipping.'))
+                    if filename in existing_hike_names:
+                        self.stdout.write(self.style.NOTICE(f'Hike with file_name {filename} already exists. Skipping.'))
                         continue
                     trackpoints = set()
                     with transaction.atomic():
@@ -59,3 +63,4 @@ class Command(BaseCommand):
                     TrackPoint.objects.bulk_create(
                         trackpoints
                     )
+                    self.stdout.write(self.style.SUCCESS(f'Processed file {filename} successfully'))
