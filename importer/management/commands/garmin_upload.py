@@ -14,6 +14,8 @@ class Command(BaseCommand):
     'processes them, and uploads to the database.'
 
     def handle(self, *args, **options):
+        save_runs_process = subprocess.run('garmin_save_runs', shell=True, check=True, text=True, capture_output=True)
+        self.stdout.write(self.style.SUCCESS(save_runs_process.stdout))
         gmn_dir = os.path.join(settings.BASE_DIR, 'garmin_data')
         for dirpath, _, filenames in os.walk(gmn_dir):
             for filename in filenames:
@@ -44,27 +46,14 @@ class Command(BaseCommand):
                             time = point.get('time')
                             lat = point.get('lat')
                             lon = point.get('lon')
-                            if not (time and lat and lon):
-                                self.stdout.write(self.style.WARNING(f'Point missing time/lat/lon, skipping'))
-                                continue
-                            alt = point.get('alt')
-                            if alt:
-                                alt = float(alt)
-                            distance = point.get('distance')
-                            if distance:
-                                distance = float(distance)
                             # FIXME confirm attribute name
                             heart_rate = point.get('heart_rate')
-                            if heart_rate:
-                                heart_rate = int(heart_rate)
                             trackpoint = TrackPoint(
                                 hike=hike_instance,
                                 datetime=time,
-                                lat=float(lat),
-                                lon=float(lon),
-                                alt=alt,
-                                distance=distance,
-                                heart_rate=heart_rate
+                                lat=float(lat)if lat else None,
+                                lon=float(lon) if lon else None,
+                                heart_rate=int(heart_rate) if heart_rate else None
                             )
                             trackpoints.add(trackpoint)
                     TrackPoint.objects.bulk_create(

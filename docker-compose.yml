@@ -2,7 +2,7 @@ services:
 
   app:
     build: .
-    command: garmin_save_runs
+    command: python manage.py garmin_upload
     volumes:
       - .:/app:delegated
       - /dev/bus/usb:/dev/bus/usb
