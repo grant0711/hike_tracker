@@ -2,11 +2,15 @@ services:
 
   app:
     build: .
-    command: python manage.py garmin_upload
+    command: >
+      sh -c "python manage.py collectstatic --noinput &&
+             uwsgi --ini uwsgi.ini"
     volumes:
       - .:/app:delegated
       - /dev/bus/usb:/dev/bus/usb
-      - ./garmin_data:/data    
+      - ./garmin_data:/data
+    ports:
+      - "8001:8001"
     privileged: true
     tty: true
     stdin_open: true
@@ -19,8 +23,15 @@ services:
   db:
     build: ./db
     restart: always
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
     ports:
       - "5020:5432"
+
+volumes:
+  postgres_data:
+    driver: local
+

@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "228e26992d4b00ddf0183158f2c5b561cf4beaaa0945d24f689fbe3c4a1aee71"
+            "sha256": "e7328b3e9f185ba88ef2664fb558c90ec2d5079166c2fdbf1401068a9f29b254"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -40,6 +40,15 @@
             "index": "pypi",
             "markers": "python_version >= '3.10'",
             "version": "==5.2.4"
+        },
+        "django-admin-inline-paginator": {
+            "hashes": [
+                "sha256:63b2e13dca6b0933f4b7a4d3262c7cb31db8cda19ad005bcbc1c29bba0e95a1a",
+                "sha256:e1558b468d347e965c4d25be7f546da6682ea03d95098ae37b90c926edd491b1"
+            ],
+            "index": "pypi",
+            "markers": "python_version >= '3.3'",
+            "version": "==0.4.0"
         },
         "psycopg2-binary": {
             "hashes": [
@@ -123,6 +132,22 @@
             ],
             "markers": "python_version >= '3.8'",
             "version": "==0.5.3"
+        },
+        "uwsgi": {
+            "hashes": [
+                "sha256:c12aa652124f062ac216077da59f6d247bd7ef938234445881552e58afb1eb5f"
+            ],
+            "index": "pypi",
+            "version": "==2.0.30"
+        },
+        "whitenoise": {
+            "hashes": [
+                "sha256:8c4a7c9d384694990c26f3047e118c691557481d624f069b7f7752a2f735d609",
+                "sha256:c8a489049b7ee9889617bb4c274a153f3d979e8f51d2efd0f5b403caf41c57df"
+            ],
+            "index": "pypi",
+            "markers": "python_version >= '3.9'",
+            "version": "==6.9.0"
         }
     },
     "develop": {}

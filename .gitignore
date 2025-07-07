@@ -55,6 +55,9 @@ cover/
 *.mo
 *.pot
 
+# Static assets
+**/staticfiles/
+
 # Project specific
 garmin_data/**
 !garmin_data/.keep
