@@ -33,9 +33,32 @@ class TrackPoint(models.Model):
     datetime = models.DateTimeField()
     lat = models.FloatField(null=True)
     lon = models.FloatField(null=True)
+    altitude = models.FloatField(null=True)
     heart_rate = models.IntegerField(null=True)
 
     indexes = [
         models.Index(fields=['hike', 'datetime'], name='hike_datetime_idx'),
     ]
     unique_together = (('hike', 'datetime'),)
+
+
+class HeartRateZone(models.Model):
+    id = models.UUIDField(primary_key=True, default=create_uuid)
+    mhr = models.IntegerField(verbose_name="Maximum Heart Rate")
+    rhr = models.IntegerField(verbose_name="Resting Heart Rate")
+    zone_1 = models.IntegerField(editable=False)
+    zone_2 = models.IntegerField(editable=False)
+    zone_3 = models.IntegerField(editable=False)
+    zone_4 = models.IntegerField(editable=False)
+    zone_5 = models.IntegerField(editable=False)
+    date_created = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"HR Zones (MHR: {self.mhr}, RHR: {self.rhr})"
+
+    def save(self, *args, **kwargs):
+        for i in range(1, 6):
+            intensity = (50 + (i - 1) * 10) / 100
+            zone_value = ((self.mhr - self.rhr) * intensity) + self.rhr
+            setattr(self, f'zone_{i}', round(zone_value))
+        super().save(*args, **kwargs)

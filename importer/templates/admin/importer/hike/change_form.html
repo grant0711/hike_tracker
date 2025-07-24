@@ -1,0 +1,151 @@
+{% extends "admin/change_form.html" %}
+{% load static %}
+
+{% block after_field_sets %}
+{{ block.super }}
+{% if chart_data %}
+<div style="display: flex; align-items: flex-start; width: 100%;">
+    <div style="flex: 3; margin: auto; padding-top: 20px;">
+        <h2>Heart Rate Over Time</h2>
+        <canvas id="heartRateChart"></canvas>
+    </div>
+    {% if spider_chart_data %}
+    <div style="flex: 1; padding-left: 20px;">
+        <h3>Time in Zones</h3>
+        <canvas id="spiderChart"></canvas>
+    </div>
+    {% endif %}
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const ctx = document.getElementById('heartRateChart').getContext('2d');
+        const chartData = {{ chart_data|safe }};
+        const hrZones = {{ hr_zones|safe }};
+        const spiderChartData = {{ spider_chart_data|safe }};
+
+        const plugins = [];
+        const scales = {
+            x: {
+                type: 'linear',
+                position: 'bottom',
+                title: {
+                    display: true,
+                    text: 'Time (minutes)'
+                },
+                ticks: {
+                    stepSize: 5,
+                    callback: function(value, index, ticks) {
+                        return Math.round(value);
+                    }
+                }
+            },
+            y: {
+                position: 'left',
+                title: {
+                    display: true,
+                    text: 'Heart Rate (bpm)'
+                }
+            }
+        };
+
+        if (hrZones) {
+            const zoneColors = {
+                zone1: 'rgba(0, 255, 0, 0.1)',
+                zone2: 'rgba(255, 255, 0, 0.1)',
+                zone3: 'rgba(255, 165, 0, 0.1)',
+                zone4: 'rgba(255, 100, 100, 0.1)',
+                zone5: 'rgba(255, 0, 0, 0.1)',
+                below: 'rgba(128, 128, 128, 0.1)'
+            };
+
+            const zoneBandsPlugin = {
+                id: 'zoneBands',
+                beforeDatasetsDraw(chart, args, options) {
+                    const { ctx, chartArea: { top, bottom, left, right }, scales: { y } } = chart;
+                    ctx.save();
+
+                    const zones = [
+                        { yMin: 0, yMax: hrZones.zone_1, color: zoneColors.below },
+                        { yMin: hrZones.zone_1, yMax: hrZones.zone_2, color: zoneColors.zone1 },
+                        { yMin: hrZones.zone_2, yMax: hrZones.zone_3, color: zoneColors.zone2 },
+                        { yMin: hrZones.zone_3, yMax: hrZones.zone_4, color: zoneColors.zone3 },
+                        { yMin: hrZones.zone_4, yMax: hrZones.zone_5, color: zoneColors.zone4 },
+                        { yMin: hrZones.zone_5, yMax: y.max, color: zoneColors.zone5 }
+                    ];
+
+                    zones.forEach(zone => {
+                        ctx.fillStyle = zone.color;
+                        const yMinPixel = y.getPixelForValue(zone.yMin);
+                        const yMaxPixel = y.getPixelForValue(zone.yMax);
+                        ctx.fillRect(left, yMaxPixel, right - left, yMinPixel - yMaxPixel);
+                    });
+
+                    ctx.restore();
+                }
+            };
+            plugins.push(zoneBandsPlugin);
+
+            scales.yZones = {
+                position: 'right',
+                title: {
+                    display: true,
+                    text: 'Heart Rate Zones'
+                },
+                ticks: {
+                    callback: function(value, index, ticks) {
+                        if (value === hrZones.zone_1) return 'Zone 1';
+                        if (value === hrZones.zone_2) return 'Zone 2';
+                        if (value === hrZones.zone_3) return 'Zone 3';
+                        if (value === hrZones.zone_4) return 'Zone 4';
+                        if (value === hrZones.zone_5) return 'Zone 5';
+                        return null;
+                    },
+                },
+                grid: {
+                    drawOnChartArea: false,
+                },
+            };
+        }
+
+        new Chart(ctx, {
+            type: 'line',
+            data: chartData,
+            plugins: plugins,
+            options: {
+                scales: scales
+            }
+        });
+
+        if (spiderChartData) {
+            const spiderCtx = document.getElementById('spiderChart').getContext('2d');
+            new Chart(spiderCtx, {
+                type: 'radar',
+                data: {
+                    labels: spiderChartData.labels,
+                    datasets: [{
+                        label: '% of Time in Zone',
+                        data: spiderChartData.data,
+                        fill: true,
+                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                        borderColor: 'rgb(75, 192, 192)',
+                        pointBackgroundColor: 'rgb(75, 192, 192)',
+                        pointBorderColor: '#fff',
+                        pointHoverBackgroundColor: '#fff',
+                        pointHoverBorderColor: 'rgb(75, 192, 192)'
+                    }]
+                },
+                options: {
+                    elements: {
+                        line: {
+                            borderWidth: 3
+                        }
+                    }
+                }
+            });
+        }
+    });
+</script>
+{% endif %}
+{% endblock %}

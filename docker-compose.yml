@@ -15,6 +15,7 @@ services:
     tty: true
     stdin_open: true
     environment:
+      DJANGO_SETTINGS_MODULE: "hike_tracker.settings"
       GARMIN_SAVE_RUNS: "/data"
       DATABASE_URL: "postgres://postgres:postgres@db:5432/hiker_db"
     depends_on:

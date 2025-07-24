@@ -10,6 +10,8 @@ dj-database-url = "*"
 uwsgi = "*"
 whitenoise = "*"
 django-admin-inline-paginator = "*"
+pytest = "*"
+pytest-django = "*"
 
 [dev-packages]
 

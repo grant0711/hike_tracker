@@ -50,13 +50,14 @@ class Command(BaseCommand):
                             time = point.get('time')
                             lat = point.get('lat')
                             lon = point.get('lon')
-                            # FIXME confirm attribute name
-                            heart_rate = point.get('heart_rate')
+                            alt = point.get('alt')
+                            heart_rate = point.get('hr')
                             trackpoint = TrackPoint(
                                 hike=hike_instance,
                                 datetime=time,
                                 lat=float(lat)if lat else None,
                                 lon=float(lon) if lon else None,
+                                altitude=float(alt) if alt else None,
                                 heart_rate=int(heart_rate) if heart_rate else None
                             )
                             trackpoints.add(trackpoint)
